@@ -12,24 +12,41 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };//Ponemos la dirección MAC 
 IPAddress ip(192,168,0,40); //Asingamos la IP al Arduino
 EthernetServer server(80); //Creamos un servidor Web con el puerto 80 que es el puerto HTTP por defecto
  
-int led=6; //Pin del led
+int led=7; //Pin del led
+const int sensorPin = 6;
 String estado="OFF"; //Estado del Led inicialmente "OFF"
  
 void setup()
 {
   Serial.begin(9600);
- 
+  
   // Inicializamos la comunicación Ethernet y el servidor
   Ethernet.begin(mac, ip);
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
- 
+
+  
   pinMode(led,OUTPUT);
+  //sensor IR
+  pinMode(sensorPin, INPUT);//Se usa para que lea el pin
 }
  
 void loop()
 {
+  int value = 0;
+  value = digitalRead(sensorPin);
+  if (value == HIGH) {
+      digitalWrite(led, LOW);
+      Serial.println("No se ha detectado nada");
+      value++;
+  }
+  else{
+    digitalWrite(led, HIGH);
+    Serial.println("Detectado obstaculo");
+    value++;
+  }
+  delay(1000);
   EthernetClient client = server.available(); //Creamos un cliente Web
   //Cuando detecte un cliente a través de una petición HTTP
   if (client) {
